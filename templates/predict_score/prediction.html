@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+</head>
+<body bgcolor="Aquamarine">
+<form id="ml" method="post" action="/predict_score/prediction/">
+    {% csrf_token %}
+    {% for field in form.visible_fields %}
+    {{ field.errors }}
+    {{ field.help_text }}
+    {{ field }}
+    {% endfor %}
+    <input type="submit" value="submit">
+</form>
+<br><br>
+<h3>The Output will appear below</h3>
+<h3>{{input}}</h3>
+</body>
+</html>
