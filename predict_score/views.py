@@ -1,16 +1,18 @@
 from django.shortcuts import render
 from .forms import CForm
-import pandas as pd
-import statsmodels.api as sm
 import numpy as np
+import tflite_runtime.interpreter as tflite
+interpreter = tflite.Interpreter(model_path=r'/home/TejaH/m.tflite')
+interpreter.allocate_tensors()
+input_details = interpreter.get_input_details()
+output_details = interpreter.get_output_details()
+floating_model = input_details[0]['dtype']
 
 def calculate(v):
- df=pd.read_csv("predict_score\score.csv")
- x=df['Hours']
- y=df['Scores']
- x=sm.add_constant(x)
- model=sm.OLS(y,x).fit()
- return model.predict(np.array([1,v]))
+    interpreter.set_tensor(input_details[0]['index'], np.array(v,dtype=floating_model))
+    interpreter.invoke()
+    output_data = interpreter.get_tensor(output_details[0]['index'])
+    return output_data
 
 def prediction(request):
  u='this is output'
@@ -29,7 +31,7 @@ def prediction(request):
     u="Invalid number"
     f=1
    if(f==0):
-    u=str(int(calculate(v)))
+    u=str(int(calculate([[v]])))
   else:
    u="error"
  return render(request,'predict_score/prediction.html',{'input':u,'form':info})
